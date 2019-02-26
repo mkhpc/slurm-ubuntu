@@ -143,10 +143,10 @@ Ubuntu 14.04
 ```console
 Copy into place config files from this repo which you've already cloned into /storage
 $ cd /storage
-$ cp ubuntu-slurm/slurmd.init /etc/init.d/slurmd
-$ cp ubuntu-slurm/slurm.default /etc/default/slurm
+$ cp slurm-ubuntu/slurmd.init /etc/init.d/slurmd
+$ cp slurm-ubuntu/slurm.default /etc/default/slurm
 $ chmod 755 /etc/init.d/slurmd
-$ cp ubuntu-slurm/slurmdbd.init /etc/init.d/slurmdbd
+$ cp slurm-ubuntu/slurmdbd.init /etc/init.d/slurmdbd
 $ chmod 755 /etc/init.d/slurmdbd
 ```
 
