@@ -6,7 +6,7 @@ Slurm overview: https://slurm.schedmd.com/overview.html
 
 This guide provides the steps to install a slurm controller node as well as a single compute node.  
 The following steps make the follwing assumptions.
-* OS: Ubuntu 16.04
+* OS: Ubuntu 18.04/16.04/14.04
 * Slurm controller node hostname: slurm-ctrl
 * Non-root user: myuser
 * Compute node hostname: linux1
@@ -23,7 +23,7 @@ The slurm controller node (slurm-ctrl) does not need to be a physical piece of h
 ## Install slurm and associated components on slurm controller node.
 Install prerequisites 
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 $ apt-get update
 $ apt-get install git gcc make ruby ruby-dev libpam0g-dev libmariadb-client-lgpl-dev libmysqlclient-dev
@@ -45,7 +45,7 @@ $ git clone https://github.com/mkhpc/slurm-ubuntu.git
 
 Customize slurm.conf with your slurm controller and compute node hostnames:
 ```console
-$ vi ubuntu-slurm/slurm.conf
+$ vi slurm-ubuntu/slurm.conf
 ControlMachine=slurm-ctrl
 NodeName=linux1 (you can specify a range of nodes here, for example: linux[1-10])
 ```
@@ -54,7 +54,7 @@ NodeName=linux1 (you can specify a range of nodes here, for example: linux[1-10]
 MUNGE (MUNGE Uid 'N' Gid Emporium) is an authentication service for creating and validating credentials.
 https://dun.github.io/munge/
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 $ apt-get install libmunge-dev libmunge2 munge
 $ systemctl enable munge
@@ -81,7 +81,7 @@ https://mariadb.org/
 
 In the following steps change the DB password "slurmdbpass" to something secure.
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 $ apt-get install mariadb-server
 $ systemctl enable mysql
@@ -131,12 +131,12 @@ $ mkdir -p /etc/slurm /etc/slurm/prolog.d /etc/slurm/epilog.d /var/spool/slurm/c
 $ chown slurm /var/spool/slurm/ctld /var/spool/slurm/d /var/log/slurm
 ```
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 Copy into place config files from this repo which you've already cloned into /storage
 $ cd /storage
-$ cp ubuntu-slurm/slurmdbd.service /etc/systemd/system/
-$ cp ubuntu-slurm/slurmctld.service /etc/systemd/system/
+$ cp slurm-ubuntu/slurmdbd.service /etc/systemd/system/
+$ cp slurm-ubuntu/slurmctld.service /etc/systemd/system/
 ```
 
 Ubuntu 14.04
@@ -151,16 +151,16 @@ $ chmod 755 /etc/init.d/slurmdbd
 ```
 
 ```console
-Edit /storage/ubuntu-slurm/slurm.conf and replace AccountingStoragePass=slurmdbpass with the DB password 
+Edit /storage/slurm-ubuntu/slurm.conf and replace AccountingStoragePass=slurmdbpass with the DB password 
 you used in the above SQL section.
-$ cp ubuntu-slurm/slurm.conf /etc/slurm/
+$ cp slurm-ubuntu/slurm.conf /etc/slurm/
 
-Edit /storage/ubuntu-slurm/slurmdbd.conf and replace StoragePass=slrumdbpass with the DB password you used
+Edit /storage/slurm-ubuntu/slurmdbd.conf and replace StoragePass=slrumdbpass with the DB password you used
 in the above SQL section.
-$ cp ubuntu-slurm/slurmdbd.conf /etc/slurm/
+$ cp slurm-ubuntu/slurmdbd.conf /etc/slurm/
 ```
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 $ systemctl daemon-reload
 $ systemctl enable slurmdbd
@@ -200,7 +200,7 @@ $ chown munge:munge /etc/munge/munge.key
 $ chmod 400 /etc/munge/munge.key
 ```
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
 $ systemctl enable munge
 $ systemctl restart munge
@@ -224,7 +224,7 @@ STATUS:           Success (0)
 ```console
 $ dpkg -i /storage/slurm-17.02.6_1.0_amd64.deb
 $ mkdir /etc/slurm
-$ cp /storage/ubuntu-slurm/slurm.conf /etc/slurm/slurm.conf
+$ cp /storage/slurm-ubuntu/slurm.conf /etc/slurm/slurm.conf
 
 If necessary modify gres.conf to reflect the properties of this compute node.
 gres.conf.dgx is an example configuration for the DGX-1. 
@@ -233,24 +233,24 @@ Use "nvidia-smi topo -m" to find the GPU-CPU affinity.
 The node-config.sh script will, if run on the compute node, output the appropriate lines to
 add to slurm.conf and gres.conf.
 
-$ cp /storage/ubuntu-slurm/gres.conf /etc/slurm/gres.conf
-$ cp /storage/ubuntu-slurm/cgroup.conf /etc/slurm/cgroup.conf
-$ cp /storage/ubuntu-slurm/cgroup_allowed_devices_file.conf /etc/slurm/cgroup_allowed_devices_file.conf
+$ cp /storage/slurm-ubuntu/gres.conf /etc/slurm/gres.conf
+$ cp /storage/slurm-ubuntu/cgroup.conf /etc/slurm/cgroup.conf
+$ cp /storage/slurm-ubuntu/cgroup_allowed_devices_file.conf /etc/slurm/cgroup_allowed_devices_file.conf
 $ useradd slurm
 $ mkdir -p /var/spool/slurm/d
 ```
 
-Ubuntu 16.04
+Ubuntu 18.04/16.04
 ```console
-$ cp /storage/ubuntu-slurm/slurmd.service /etc/systemd/system/
+$ cp /storage/slurm-ubuntu/slurmd.service /etc/systemd/system/
 $ systemctl enable slurmd
 $ systemctl start slurmd
 ```
 
 Ubuntu 14.04
 ```console
-$ cp /storage/ubuntu-slurm/slurmd.init /etc/init.d/slurmd
-$ cp /storage/ubuntu-slurm/slurm.default /etc/default/slurm
+$ cp /storage/slurm-ubuntu/slurmd.init /etc/init.d/slurmd
+$ cp /storage/slurm-ubuntu/slurm.default /etc/default/slurm
 $ chmod 755 /etc/init.d/slurmd
 $ update-rc.d slurmd start 20 3 4 5 . stop 20 0 1 6 .
 $ service slurmd start
